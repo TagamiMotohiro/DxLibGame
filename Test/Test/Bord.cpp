@@ -1,0 +1,7 @@
+namespace DxTest {
+	class bord
+	{
+
+
+	};
+}

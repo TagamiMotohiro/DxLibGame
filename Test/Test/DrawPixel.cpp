@@ -1,7 +1,6 @@
 #include "DxLib.h"
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
-
 bool gameEnd=false;
 struct vector2
 {
@@ -31,7 +30,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 void MainLoop()
 {
 	Title();
-	DrawPixel(pos.x,pos.y,GetColor(255,255,255));
+	DrawPixel(pos.x,pos.y,GetColor(255,0 
+		,255));
 	pos.x++;
 	pos.y++;
 	if (pos.x >= 10)
