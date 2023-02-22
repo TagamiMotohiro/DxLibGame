@@ -1,21 +1,28 @@
 #pragma once
-namespace Dxtest
+
+class vector2
 {
-	class vector2
+public:
+	int x;
+	int y;
+	vector2();
+	~vector2();
+	void setpos(int inputX,int inputY)
 	{
-	public:
-		vector2();
-		~vector2();
-
-	private:
-
-	};
-
-	vector2::vector2()
-	{
+	x = inputX;
+	y = inputY;
 	}
+private:
+		
+};
+	
+vector2::vector2()
+{
+	//コンストラクタで初期化
+	this->x = 0;
+	this->y = 0;
+}
 
-	vector2::~vector2()
-	{
-	}
+vector2::~vector2()
+{
 }
