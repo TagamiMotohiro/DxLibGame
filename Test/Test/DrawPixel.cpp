@@ -7,6 +7,7 @@
 bool gameEnd=false;
 bool BeforeMouseState=false;
 Bord bord;
+Bord::STATE Turn_Coller = Bord::WHITE;
 int white = GetColor(255, 255, 255);
 int black = GetColor(0, 0, 0);
 vector2 MoucePos;
@@ -14,7 +15,6 @@ vector2 pos;
 bool MouseGetDown();
 void MainLoop();
 void DrawBord(Bord::STATE now_State[8][8]);
-void SetStone();
 void ChackMousePoint();
 // ÉvÉçÉOÉâÉÄÇÕ WinMain Ç©ÇÁénÇ‹ÇËÇ‹Ç∑
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -47,7 +47,19 @@ void MainLoop()
 			vector2 posindex;
 			posindex.x = MoucePos.x / bord.margin;
 			posindex.y = MoucePos.y / bord.margin;
-			bord.setState(posindex,Bord::STATE::BLACK);
+			if (bord.stone_State[posindex.x][posindex.y] == Bord::STATE::NONE) {
+				bord.setState(posindex,Turn_Coller );
+				if(Turn_Coller==Bord::STATE::BLACK)
+				{
+					Turn_Coller = Bord::STATE::WHITE;
+					return;
+				}
+				if (Turn_Coller == Bord::STATE::WHITE)
+				{
+					Turn_Coller = Bord::STATE::BLACK;
+					return;
+				}
+			}
 		}
 	}
 	ChackMousePoint();
