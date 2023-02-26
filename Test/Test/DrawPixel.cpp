@@ -14,8 +14,10 @@ vector2 MoucePos;
 vector2 pos;
 bool MouseGetDown();
 void MainLoop();
+bool ChackCanSet(vector2 index);
 void DrawBord(Bord::STATE now_State[8][8]);
 void ChackMousePoint();
+void ClickSetStone();
 // プログラムは WinMain から始まります
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -42,29 +44,45 @@ void MainLoop()
 	ClearDrawScreen();
 	if (MouseGetDown())
 	{
-		if((MoucePos.x>0 && MoucePos.x<bord.margin * 8) &&
-		(MoucePos.y>0 && MoucePos.y<bord.margin * 8)) {
-			vector2 posindex;
-			posindex.x = MoucePos.x / bord.margin;
-			posindex.y = MoucePos.y / bord.margin;
-			if (bord.stone_State[posindex.x][posindex.y] == Bord::STATE::NONE) {
-				bord.setState(posindex,Turn_Coller );
-				if(Turn_Coller==Bord::STATE::BLACK)
-				{
-					Turn_Coller = Bord::STATE::WHITE;
-					return;
-				}
-				if (Turn_Coller == Bord::STATE::WHITE)
-				{
-					Turn_Coller = Bord::STATE::BLACK;
-					return;
-				}
-			}
-		}
+		ClickSetStone();
 	}
 	ChackMousePoint();
 	DrawBord(bord.stone_State);
 	ScreenFlip();
+}
+void ClickSetStone()
+{
+//盤面内をクリックされていた場合
+if((MoucePos.x>0 && MoucePos.x<bord.margin * 8) &&
+	(MoucePos.y>0 && MoucePos.y<bord.margin * 8)) {
+	//押された位置から盤面内のインデックス番号を算出
+		vector2 posindex;
+		posindex.x = MoucePos.x / bord.margin;
+		posindex.y = MoucePos.y / bord.margin;
+		if (ChackCanSet(posindex)) {
+			//石が置かれていなければ手番の石を置く
+			bord.setState(posindex,Turn_Coller );
+			if(Turn_Coller==Bord::STATE::BLACK)
+			{
+				Turn_Coller = Bord::STATE::WHITE;
+				return;
+			}
+			if (Turn_Coller == Bord::STATE::WHITE)
+			{
+				Turn_Coller = Bord::STATE::BLACK;
+				return;
+			}
+		}
+	}
+}
+bool ChackCanSet(vector2 index)
+{
+	bool canset = false;
+	if (bord.GetState(index)==Bord::NONE)
+	{
+		canset = true;
+	}
+	return canset;
 }
 void DrawBord(Bord::STATE now_State[8][8])
 {

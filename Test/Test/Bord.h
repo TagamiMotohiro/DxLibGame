@@ -15,11 +15,20 @@ class Bord {
 	{
 		stone_State[index.x][index.y] = ChangeState;
 	}
+	STATE GetState(vector2 index)
+	{
+		return stone_State[index.x][index.y];
+	}
+	bool ChackCanFlip()
+	{
+	
+	}
 	Bord();
 	private:
 	
 };
 Bord::Bord() {
+	//最初から置かれている石をコンストラクタで設定
 	stone_State[4][3] = { STATE::BLACK };
 	stone_State[3][4] = { STATE::BLACK };
 	stone_State[3][3] = { STATE::WHITE };
