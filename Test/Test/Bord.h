@@ -19,10 +19,7 @@ class Bord {
 	{
 		return stone_State[index.x][index.y];
 	}
-	bool ChackCanFlip()
-	{
-	
-	}
+
 	Bord();
 	private:
 	

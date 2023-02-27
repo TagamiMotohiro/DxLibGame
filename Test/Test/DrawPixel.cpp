@@ -57,8 +57,7 @@ if((MoucePos.x>0 && MoucePos.x<bord.margin * 8) &&
 	(MoucePos.y>0 && MoucePos.y<bord.margin * 8)) {
 	//押された位置から盤面内のインデックス番号を算出
 		vector2 posindex;
-		posindex.x = MoucePos.x / bord.margin;
-		posindex.y = MoucePos.y / bord.margin;
+		posindex.setpos(MoucePos.x/bord.margin,MoucePos.y/bord.margin);
 		if (ChackCanSet(posindex)) {
 			//石が置かれていなければ手番の石を置く
 			bord.setState(posindex,Turn_Coller );
@@ -112,8 +111,6 @@ void DrawBord(Bord::STATE now_State[8][8])
 	//蓋の線は別途描画
 	DrawLine(bord.margin * 8, 0, bord.margin * 8, bord.margin * 8, black, 1);
 	DrawLine(0, bord.margin *8, bord.margin * 8, bord.margin * 8, black, 1);
-	//石を置くときの式
-	//マスごとの間隔/2+(マスごとの間隔*インデックス)
 }
 void ChackMousePoint()
 {
