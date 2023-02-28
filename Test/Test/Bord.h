@@ -1,5 +1,6 @@
 #pragma once
 #include "Vector2.h"
+#include "vector"
 class Bord {
 	public:
 	//”’‚¢Î‚ª’u‚©‚ê‚Ä‚¢‚é‚©•‚¢Î‚ª’u‚©‚ê‚Ä‚¢‚é‚©”»’è‚·‚é—ñ‹“Œ^
@@ -10,16 +11,23 @@ class Bord {
 		BLACK = 2
 	};
 	const int margin = 50;
-	STATE stone_State[8][8] ={STATE::NONE};
-	void setState(vector2 index,STATE ChangeState)
+	void setState(vector2 index,Bord::STATE ChangeState)
 	{
 		stone_State[index.x][index.y] = ChangeState;
 	}
+	std::vector<vector2> ReturnCanSetindex(Bord::STATE Now_Turn)
+	{
+		std::vector<vector2> canSetIndex;
+		vector2 index;
+		index.setpos(1,1);
+		canSetIndex.push_back(index);
+		return canSetIndex;
+	}
+	STATE stone_State[8][8] ={STATE::NONE};
 	STATE GetState(vector2 index)
 	{
 		return stone_State[index.x][index.y];
 	}
-
 	Bord();
 	private:
 	

@@ -1,4 +1,5 @@
 #include "DxLib.h"
+#include "vector"
 #include "Vector2.h"
 #include "Bord.h"
 #define WINDOW_WIDTH 640
@@ -13,8 +14,9 @@ int black = GetColor(0, 0, 0);
 vector2 MoucePos;
 vector2 pos;
 bool MouseGetDown();
+void lateTurn();
 void MainLoop();
-bool ChackCanSet(vector2 index);
+bool ChackCanSet(vector2 index,std::vector<vector2> CansetIndex);
 void DrawBord(Bord::STATE now_State[8][8]);
 void ChackMousePoint();
 void ClickSetStone();
@@ -58,28 +60,40 @@ if((MoucePos.x>0 && MoucePos.x<bord.margin * 8) &&
 	//押された位置から盤面内のインデックス番号を算出
 		vector2 posindex;
 		posindex.setpos(MoucePos.x/bord.margin,MoucePos.y/bord.margin);
-		if (ChackCanSet(posindex)) {
+		if (ChackCanSet(posindex,bord.ReturnCanSetindex(Turn_Coller))) {
 			//石が置かれていなければ手番の石を置く
 			bord.setState(posindex,Turn_Coller );
-			if(Turn_Coller==Bord::STATE::BLACK)
-			{
-				Turn_Coller = Bord::STATE::WHITE;
-				return;
-			}
-			if (Turn_Coller == Bord::STATE::WHITE)
-			{
-				Turn_Coller = Bord::STATE::BLACK;
-				return;
-			}
+			lateTurn();
 		}
 	}
 }
-bool ChackCanSet(vector2 index)
+void lateTurn()
+{
+	//ターンを経過させる
+	if (Turn_Coller == Bord::STATE::BLACK)
+	{
+		Turn_Coller = Bord::STATE::WHITE;
+		return;
+	}
+	if (Turn_Coller == Bord::STATE::WHITE)
+	{
+		Turn_Coller = Bord::STATE::BLACK;
+		return;
+	}
+}
+bool ChackCanSet(vector2 index,std::vector<vector2> CansetIndex)
 {
 	bool canset = false;
 	if (bord.GetState(index)==Bord::NONE)
 	{
-		canset = true;
+		for (int i=0;i<CansetIndex.size(); i++)
+		{
+			if (index.x==CansetIndex[i].x&&index.y==CansetIndex[i].y) {
+				canset = true;
+				break;
+			}
+		}
+		
 	}
 	return canset;
 }
