@@ -8,15 +8,17 @@
 bool gameEnd=false;
 bool BeforeMouseState=false;
 Bord bord;
-Bord::STATE Turn_Coller = Bord::WHITE;
+Bord::STATE NowTurn_State = Bord::WHITE;
 int white = GetColor(255, 255, 255);
 int black = GetColor(0, 0, 0);
 vector2 MoucePos;
 vector2 pos;
+std::vector<vector2> CansetPosAllay;
+void CanSetAllay_Reset();
 bool MouseGetDown();
 void lateTurn();
 void MainLoop();
-bool ChackCanSet(vector2 index,std::vector<vector2> CansetIndex);
+bool CheckCanSet(vector2 pos);
 void DrawBord(Bord::STATE now_State[8][8]);
 void ChackMousePoint();
 void ClickSetStone();
@@ -30,6 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 	SetMouseDispFlag(true);
 	SetBackgroundColor(0,255,0,1);
+	CanSetAllay_Reset();
 	while (!gameEnd)
 	{
 		MainLoop();
@@ -59,43 +62,38 @@ if((MoucePos.x>0 && MoucePos.x<bord.margin * 8) &&
 	(MoucePos.y>0 && MoucePos.y<bord.margin * 8)) {
 	//押された位置から盤面内のインデックス番号を算出
 		vector2 posindex;
-		posindex.setpos(MoucePos.x/bord.margin,MoucePos.y/bord.margin);
-		if (ChackCanSet(posindex,bord.ReturnCanSetindex(Turn_Coller))) {
-			//石が置かれていなければ手番の石を置く
-			bord.setState(posindex,Turn_Coller );
+		posindex.SetValue(MoucePos.x/bord.margin,MoucePos.y/bord.margin);
+		if (CheckCanSet(posindex)){
+			//条件がそろって入れば手番の石を置く
+			bord.setState(posindex,NowTurn_State );
+			CanSetAllay_Reset();
 			lateTurn();
 		}
 	}
 }
+bool CheckCanSet(vector2 pos) {
+	for (int i = 0; i < CansetPosAllay.size(); i++)
+	{
+		if (pos.x == CansetPosAllay[i].x && pos.y == CansetPosAllay[i].y)
+		{
+			return true;
+		}
+	}
+	return false;
+}
 void lateTurn()
 {
 	//ターンを経過させる
-	if (Turn_Coller == Bord::STATE::BLACK)
+	if (NowTurn_State == Bord::STATE::BLACK)
 	{
-		Turn_Coller = Bord::STATE::WHITE;
+		NowTurn_State = Bord::STATE::WHITE;
 		return;
 	}
-	if (Turn_Coller == Bord::STATE::WHITE)
+	if (NowTurn_State == Bord::STATE::WHITE)
 	{
-		Turn_Coller = Bord::STATE::BLACK;
+		NowTurn_State = Bord::STATE::BLACK;
 		return;
 	}
-}
-bool ChackCanSet(vector2 index,std::vector<vector2> CansetIndex)
-{
-	bool canset = false;
-	if (bord.GetState(index)==Bord::NONE)
-	{
-		for (int i=0;i<CansetIndex.size(); i++)
-		{
-			if (index.x==CansetIndex[i].x&&index.y==CansetIndex[i].y) {
-				canset = true;
-				break;
-			}
-		}
-		
-	}
-	return canset;
 }
 void DrawBord(Bord::STATE now_State[8][8])
 {
@@ -140,4 +138,8 @@ bool MouseGetDown()
 	nowState = Changed ;
 	BeforeMouseState = Get;
 	return Changed;
+}
+void CanSetAllay_Reset()
+{
+	CansetPosAllay = bord.ReturnCanSetindex(NowTurn_State);
 }
