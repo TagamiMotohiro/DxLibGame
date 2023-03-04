@@ -8,7 +8,8 @@ class Bord {
 	{
 		NONE = 0,
 		WHITE = 1,
-		BLACK = 2
+		BLACK = 2,
+		CAN_SET=3
 	};
 	const int margin = 50;
 	STATE stone_State[8][8] ={STATE::NONE};
@@ -22,6 +23,7 @@ class Bord {
 		vector2 index;
 		for (int y = 0; y<8; y++) {
 			for (int x = 0; x < 8; x++) {
+				if (stone_State[x][y] == STATE::CAN_SET) { stone_State[x][y] = STATE::NONE; }
 				if (stone_State[x][y] != STATE::NONE) { continue; }
 				index.SetValue(x, y);
 				if (CheckCanSet(index, nowTurn)) {
@@ -36,7 +38,7 @@ class Bord {
 		bool Canset=false;
 		vector2 Line_Vec;
 		Line_Vec.SetValue(-1,-1);
-		//Še•ûŒü‚É‘Î‚µ‚ÄÎ‚ð•Ô‚¹‚é”z’u‚É‚È‚Á‚Ä‚¢‚é‚©’Tõ
+		//Še•ûŒü‚É‘Î‚µ‚ÄÎ‚ð•Ô‚¹‚é”z’u‚É‚È‚Á‚Ä‚¢‚é‚©’Tõ(8•ûŒü)
 		for (int i = 0; i < 2; i++) { 
 			if (Line_Search(index, Line_Vec, nowTurn)) { Canset = true; }
 			Line_Vec.PlusValue(1,0);
@@ -57,22 +59,29 @@ class Bord {
 	}
 	bool Line_Search(vector2 index,vector2 Search_Line,STATE now_Turn)
 	{
+		//1ƒ‰ƒCƒ“•ª’Tõ‚ðs‚¤ŠÖ”
+		vector2 a = index;
 		bool CanFlip=false;
 		STATE opponent_Stone;
+		//Œ»Ý‚Ìƒ^[ƒ“‚Ìó‘Ô‚©‚ç’Tõ‚·‚éó‘Ô‚ðŽZo
 		if(now_Turn==STATE::BLACK)
 		{
+			//•‚¾‚Á‚½‚ç”’
 			opponent_Stone = STATE::WHITE;
 		}
 		else
 		{
+			//”’‚¾‚Á‚½‚ç•‚ð’T‚·
 			opponent_Stone = STATE::BLACK;
 		}
 		do
 		{
+			
 			index.PlusValue(Search_Line.x, Search_Line.y);
 			if (index.x < 0 || index.y < 0) { return false; }
 			if (index.x > 9 || index.y > 9) { return false; }
-			if(CanFlip&&stone_State[index.x][index.y]) {
+			if(CanFlip&&stone_State[index.x][index.y]==now_Turn) {
+				stone_State[a.x][a.y] = STATE::CAN_SET;
 				return true;
 			}
 			if (stone_State[index.x][index.y]==opponent_Stone)
@@ -80,6 +89,7 @@ class Bord {
 				CanFlip=true;
 			}
 		} while(CanFlip);
+		return false;
 	}
 	STATE GetState(vector2 index)
 	{

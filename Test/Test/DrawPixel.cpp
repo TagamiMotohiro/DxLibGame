@@ -47,10 +47,19 @@ void MainLoop()
 		gameEnd = true;
 	}
 	ClearDrawScreen();
+	if(NowTurn_State==Bord::STATE::BLACK)
+	{
+		DrawFormatString(0, 10, white, "黒のターンです");
+	}
+	if(NowTurn_State==Bord::STATE::WHITE)
+	{
+		DrawFormatString(0, 10, white, "白のターンです");
+	}
 	if (MouseGetDown())
 	{
 		ClickSetStone();
 	}
+	
 	ChackMousePoint();
 	DrawBord(bord.stone_State);
 	ScreenFlip();
@@ -115,6 +124,9 @@ void DrawBord(Bord::STATE now_State[8][8])
 				break;
 			case Bord::STATE::WHITE:
 				DrawCircle(bord.margin / 2 + (bord.margin * x), bord.margin / 2 + (bord.margin * y), bord.margin / 2, white);
+				break;
+			case Bord::STATE::CAN_SET:
+				DrawCircle(bord.margin / 2 + (bord.margin * x), bord.margin / 2 + (bord.margin * y), bord.margin / 2, GetColor(255,0,0));
 				break;
 			}
 		}
