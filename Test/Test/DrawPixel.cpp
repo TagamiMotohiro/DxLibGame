@@ -1,4 +1,5 @@
 #include "DxLib.h"
+#include "vector"
 #include "Vector2.h"
 #include "Bord.h"
 #define WINDOW_WIDTH 640
@@ -7,14 +8,17 @@
 bool gameEnd=false;
 bool BeforeMouseState=false;
 Bord bord;
-Bord::STATE Turn_Coller = Bord::WHITE;
+Bord::STATE NowTurn_State = Bord::WHITE;
 int white = GetColor(255, 255, 255);
 int black = GetColor(0, 0, 0);
 vector2 MoucePos;
 vector2 pos;
+std::vector<vector2> CansetPosAllay;
+void CanSetAllay_Reset();
 bool MouseGetDown();
+void lateTurn();
 void MainLoop();
-bool ChackCanSet(vector2 index);
+bool CheckCanSet(vector2 pos);
 void DrawBord(Bord::STATE now_State[8][8]);
 void ChackMousePoint();
 void ClickSetStone();
@@ -28,6 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 	SetMouseDispFlag(true);
 	SetBackgroundColor(0,255,0,1);
+	CanSetAllay_Reset();
 	while (!gameEnd)
 	{
 		MainLoop();
@@ -43,10 +48,19 @@ void MainLoop()
 		gameEnd = true;
 	}
 	ClearDrawScreen();
+	if(NowTurn_State==Bord::STATE::BLACK)
+	{
+		DrawFormatString(0, 10, white, "黒のターンです");
+	}
+	if(NowTurn_State==Bord::STATE::WHITE)
+	{
+		DrawFormatString(0, 10, white, "白のターンです");
+	}
 	if (MouseGetDown())
 	{
 		ClickSetStone();
 	}
+	
 	ChackMousePoint();
 	DrawBord(bord.stone_State);
 	ScreenFlip();
@@ -58,32 +72,38 @@ if((MoucePos.x>0 && MoucePos.x<bord.margin * 8) &&
 	(MoucePos.y>0 && MoucePos.y<bord.margin * 8)) {
 	//押された位置から盤面内のインデックス番号を算出
 		vector2 posindex;
-		posindex.x = MoucePos.x / bord.margin;
-		posindex.y = MoucePos.y / bord.margin;
-		if (ChackCanSet(posindex)) {
-			//石が置かれていなければ手番の石を置く
-			bord.setState(posindex,Turn_Coller );
-			if(Turn_Coller==Bord::STATE::BLACK)
-			{
-				Turn_Coller = Bord::STATE::WHITE;
-				return;
-			}
-			if (Turn_Coller == Bord::STATE::WHITE)
-			{
-				Turn_Coller = Bord::STATE::BLACK;
-				return;
-			}
+		posindex.SetValue(MoucePos.x/bord.margin,MoucePos.y/bord.margin);
+		if (CheckCanSet(posindex)){
+			//条件がそろって入れば手番の石を置く
+			bord.setState(posindex,NowTurn_State );
+			CanSetAllay_Reset();
+			lateTurn();
 		}
 	}
 }
-bool ChackCanSet(vector2 index)
-{
-	bool canset = false;
-	if (bord.GetState(index)==Bord::NONE)
+bool CheckCanSet(vector2 pos) {
+	for (int i = 0; i < CansetPosAllay.size(); i++)
 	{
-		canset = true;
+		if (pos.x == CansetPosAllay[i].x && pos.y == CansetPosAllay[i].y)
+		{
+			return true;
+		}
 	}
-	return canset;
+	return false;
+}
+void lateTurn()
+{
+	//ターンを経過させる
+	if (NowTurn_State == Bord::STATE::BLACK)
+	{
+		NowTurn_State = Bord::STATE::WHITE;
+		return;
+	}
+	if (NowTurn_State == Bord::STATE::WHITE)
+	{
+		NowTurn_State = Bord::STATE::BLACK;
+		return;
+	}
 }
 void DrawBord(Bord::STATE now_State[8][8])
 {
@@ -106,6 +126,9 @@ void DrawBord(Bord::STATE now_State[8][8])
 			case Bord::STATE::WHITE:
 				DrawCircle(bord.margin / 2 + (bord.margin * x), bord.margin / 2 + (bord.margin * y), bord.margin / 2, white);
 				break;
+			case Bord::STATE::CAN_SET:
+				DrawCircle(bord.margin / 2 + (bord.margin * x), bord.margin / 2 + (bord.margin * y), bord.margin / 2, GetColor(255,0,0));
+				break;
 			}
 		}
 		
@@ -113,8 +136,6 @@ void DrawBord(Bord::STATE now_State[8][8])
 	//蓋の線は別途描画
 	DrawLine(bord.margin * 8, 0, bord.margin * 8, bord.margin * 8, black, 1);
 	DrawLine(0, bord.margin *8, bord.margin * 8, bord.margin * 8, black, 1);
-	//石を置くときの式
-	//マスごとの間隔/2+(マスごとの間隔*インデックス)
 }
 void ChackMousePoint()
 {
@@ -130,4 +151,8 @@ bool MouseGetDown()
 	nowState = Changed ;
 	BeforeMouseState = Get;
 	return Changed;
+}
+void CanSetAllay_Reset()
+{
+	CansetPosAllay = bord.ReturnCanSetindex(NowTurn_State);
 }

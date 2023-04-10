@@ -7,10 +7,15 @@ public:
 	int y;
 	vector2();
 	~vector2();
-	void setpos(int inputX,int inputY)
+	void SetValue(int inputX,int inputY)
 	{
-	x = inputX;
-	y = inputY;
+		x = inputX;
+		y = inputY;
+	}
+	void PlusValue(int inputX,int inputY)
+	{
+		x += inputX;
+		y += inputY;
 	}
 private:
 		
