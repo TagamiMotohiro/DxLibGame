@@ -43,7 +43,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 }
 void MainLoop()
 {
-	if (CheckHitKey(KEY_INPUT_ESCAPE)) {
+	if (CheckHitKey(KEY_INPUT_ESCAPE)){
+		//escâüÇµÇΩÇÁã≠êßèIóπ
 		gameEnd = true;
 	}
 	ClearDrawScreen();
