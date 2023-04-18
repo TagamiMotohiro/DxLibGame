@@ -33,6 +33,13 @@ class Bord {
 		}
 		return canSetIndex;
 	}
+	void flip(std::vector<vector2> FlipStone,STATE FlipState)
+	{
+		for (int i = 0; i < FlipStone.size(); i++)
+		{
+			stone_State[FlipStone[i].x][FlipStone[i].y] = FlipState;
+		}
+	}
 	bool CheckCanSet(vector2 index,STATE nowTurn)
 	{
 		bool Canset=false;
@@ -57,7 +64,7 @@ class Bord {
 		}
 		return Canset;
 	}
-	bool Line_Search(vector2 index,vector2 Search_Line,STATE now_Turn)
+	bool Line_Search(vector2 index,vector2 SearchQVector,STATE now_Turn)
 	{
 		//1ƒ‰ƒCƒ“•ª’Tõ‚ğs‚¤ŠÖ”
 		vector2 a = index;
@@ -76,14 +83,17 @@ class Bord {
 		}
 		do
 		{
-			
-			index.PlusValue(Search_Line.x, Search_Line.y);
+			//Œ»İ‚Ì’TõˆÊ’u‚©‚ç’Tõ•ûŒü‚É‚¸‚ç‚·
+			index.PlusValue(SearchQVector.x, SearchQVector.y);
+			//”ÍˆÍŠO‚É‚È‚Á‚½‚çfalse
 			if (index.x < 0 || index.y < 0) { return false; }
 			if (index.x > 9 || index.y > 9) { return false; }
-			if(CanFlip&&stone_State[index.x][index.y]==now_Turn) {
+			//’Tõüã‚É‘ŠèÎ‚ª‚ ‚é&&Œ»İ‚Ì’Tõ“X‚ÉÎ‚ª’u‚©‚ê‚Ä‚¢‚È‚¢(?)
+			if(CanFlip&&stone_State[index.x][index.y] == now_Turn) {
 				stone_State[a.x][a.y] = STATE::CAN_SET;
 				return true;
 			}
+			//’Tõüã‚É‘Šè‚ÌÎ‚ª‚ ‚éê‡
 			if (stone_State[index.x][index.y]==opponent_Stone)
 			{
 				CanFlip=true;
