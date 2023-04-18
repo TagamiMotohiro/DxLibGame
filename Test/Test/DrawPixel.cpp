@@ -47,19 +47,10 @@ void MainLoop()
 		gameEnd = true;
 	}
 	ClearDrawScreen();
-	if(NowTurn_State==Bord::STATE::BLACK)
-	{
-		DrawFormatString(0, 10, white, "黒のターンです");
-	}
-	if(NowTurn_State==Bord::STATE::WHITE)
-	{
-		DrawFormatString(0, 10, white, "白のターンです");
-	}
 	if (MouseGetDown())
 	{
 		ClickSetStone();
 	}
-	
 	ChackMousePoint();
 	DrawBord(bord.stone_State);
 	ScreenFlip();
