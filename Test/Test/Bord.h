@@ -9,44 +9,43 @@ class Bord {
 		NONE = 0,
 		WHITE = 1,
 		BLACK = 2,
-		CAN_SET = 3
+		CAN_SET=3
 	};
 	const int margin = 50;
 	STATE stone_State[8][8] ={STATE::NONE};
-	
+	void setState(vector2 index,Bord::STATE ChangeState)
+	{
+		stone_State[index.x][index.y] = ChangeState;
+	}
 	std::vector<vector2> ReturnCanSetindex(STATE nowTurn)
 	{
 		std::vector<vector2> canSetIndex;
 		vector2 index;
-		//すべてのマスで探索を行う
-		for (int y = 0; y < 8; y++) {
+		for (int y = 0; y<8; y++) {
 			for (int x = 0; x < 8; x++) {
 				if (stone_State[x][y] == STATE::CAN_SET) { stone_State[x][y] = STATE::NONE; }
 				if (stone_State[x][y] != STATE::NONE) { continue; }
 				index.SetValue(x, y);
-				if (CheckCanSet(index,nowTurn)) {
+				if (CheckCanSet(index, nowTurn)) {
 					canSetIndex.push_back(index);
 				}
 			}
 		}
 		return canSetIndex;
 	}
-
-	void Flip(std::vector<vector2> CanFlip,STATE FlipState)
+	void flip(std::vector<vector2> FlipStone,STATE FlipState)
 	{
-		for (int i = 0; i < CanFlip.size(); i++)
+		for (int i = 0; i < FlipStone.size(); i++)
 		{
-			stone_State[CanFlip[i].x][CanFlip[i].y] = FlipState;
+			stone_State[FlipStone[i].x][FlipStone[i].y] = FlipState;
 		}
 	}
-
-	//探索系関数
 	bool CheckCanSet(vector2 index,STATE nowTurn)
 	{
-		//各方向に対して石を返せる配置になっているか探索(8方向)
 		bool Canset=false;
 		vector2 Line_Vec;
 		Line_Vec.SetValue(-1,-1);
+		//各方向に対して石を返せる配置になっているか探索(8方向)
 		for (int i = 0; i < 2; i++) { 
 			if (Line_Search(index, Line_Vec, nowTurn)) { Canset = true; }
 			Line_Vec.PlusValue(1,0);
@@ -65,7 +64,7 @@ class Bord {
 		}
 		return Canset;
 	}
-	bool Line_Search(vector2 index,vector2 Search_Line,STATE now_Turn)
+	bool Line_Search(vector2 index,vector2 Search＿Vector,STATE now_Turn)
 	{
 		//1ライン分探索を行う関数
 		vector2 a = index;
@@ -84,35 +83,31 @@ class Bord {
 		}
 		do
 		{
-			index.PlusValue(Search_Line.x, Search_Line.y);
+			//現在の探索位置から探索方向にずらす
+			index.PlusValue(Search＿Vector.x, Search＿Vector.y);
+			//範囲外になったらfalse
 			if (index.x < 0 || index.y < 0) { return false; }
 			if (index.x > 9 || index.y > 9) { return false; }
-			if(CanFlip&&stone_State[index.x][index.y]==now_Turn) {
+			//探索線上に相手石がある&&現在の探索店に石が置かれていない(?)
+			if(CanFlip&&stone_State[index.x][index.y] == now_Turn) {
 				stone_State[a.x][a.y] = STATE::CAN_SET;
 				return true;
 			}
+			//探索線上に相手の石がある場合
 			if (stone_State[index.x][index.y]==opponent_Stone)
 			{
-
 				CanFlip=true;
 			}
 		} while(CanFlip);
 		return false;
 	}
-
-
-	//ステータス取得関数
 	STATE GetState(vector2 index)
 	{
 		return stone_State[index.x][index.y];
 	}
-	//ステータス変更関数
-	void setState(vector2 index,Bord::STATE ChangeState)
-	{
-		stone_State[index.x][index.y] = ChangeState;
-	}
 	Bord();
 	private:
+	
 };
 Bord::Bord() {
 	//最初から置かれている石をコンストラクタで設定
