@@ -26,8 +26,9 @@ class Bord {
 				if (stone_State[x][y] == STATE::CAN_SET) { stone_State[x][y] = STATE::NONE; }
 				if (stone_State[x][y] != STATE::NONE) { continue; }
 				index.SetValue(x, y);
-				if (CheckCanSet(index, nowTurn)) {
-					canSetIndex.push_back(index);
+				if (GetCanflip(index, nowTurn).size()>0){//探索用の関数を使って一つでも返せるようだったらそこは返せる位置ということ
+					canSetIndex.push_back(index);//その位置を返す
+					stone_State[index.x][index.y] = STATE::CAN_SET;
 				}
 			}
 		}
@@ -40,36 +41,34 @@ class Bord {
 			stone_State[FlipStone[i].x][FlipStone[i].y] = FlipState;
 		}
 	}
-	bool CheckCanSet(vector2 index,STATE nowTurn)
+	std::vector<vector2> GetCanflip(vector2 Start_Pos/*調べるスタート地点*/,STATE nowTurn)
 	{
-		bool Canset=false;
 		vector2 Line_Vec;
+		std::vector<vector2> CanflipList;
 		Line_Vec.SetValue(-1,-1);
 		//各方向に対して石を返せる配置になっているか探索(8方向)
-		for (int i = 0; i < 2; i++) { 
-			if (Line_Search(index, Line_Vec, nowTurn)) { Canset = true; }
-			Line_Vec.PlusValue(1,0);
+		for (int i = -1; i <= 1; i++)
+		{
+			for (int j = -1; j <= 1; j++)
+			{
+				if (i == 0 && j == 0) { continue; }//(0,0)は調べる意味がないので飛ばす
+				vector2 vec;
+				vec.SetValue(i,j);
+				Line_Search(Start_Pos, vec, nowTurn, CanflipList);
+			}
 		}
-		for (int i = 0; i < 2; i++) {
-			if (Line_Search(index, Line_Vec, nowTurn)) { Canset = true; }
-			Line_Vec.PlusValue(0,1);
-		}
-		for (int i = 0; i < 2; i++) {
-			if (Line_Search(index, Line_Vec, nowTurn)) { Canset = true; }
-			Line_Vec.PlusValue(-1,0);
-		}
-		for (int i = 0; i < 2; i++) {
-			if (Line_Search(index, Line_Vec, nowTurn)) { Canset = true; }
-			Line_Vec.PlusValue(0, -1);
-		}
-		return Canset;
+		return CanflipList;
 	}
-	bool Line_Search(vector2 index,vector2 Search＿Vector,STATE now_Turn)
+	void Line_Search(vector2 index/*探索開始位置*/,vector2 Search＿Vector/*探索を行う線上(0,1)なら上方向*/,
+		STATE now_Turn,std::vector<vector2>& Output/*結果を渡す配列(ポインタ参照)*/)
 	{
+
+		/*Tips:動的可変長配列同士は例え型が同じでも代入できない*/
+
 		//1ライン分探索を行う関数
-		vector2 a = index;
-		bool CanFlip=false;
+		bool CanFlip=true;
 		STATE opponent_Stone;
+		std::vector<vector2> Canflip_List;//(仮置き)返すことができる位置情報のリスト
 		//現在のターンの状態から探索する状態を算出
 		if(now_Turn==STATE::BLACK)
 		{
@@ -81,25 +80,25 @@ class Bord {
 			//白だったら黒を探す
 			opponent_Stone = STATE::BLACK;
 		}
-		do
+		while (CanFlip)
 		{
 			//現在の探索位置から探索方向にずらす
 			index.PlusValue(Search＿Vector.x, Search＿Vector.y);
-			//範囲外になったらfalse
-			if (index.x < 0 || index.y < 0) { return false; }
-			if (index.x > 9 || index.y > 9) { return false; }
-			//探索線上に相手石がある&&現在の探索店に石が置かれていない(?)
-			if(CanFlip&&stone_State[index.x][index.y] == now_Turn) {
-				stone_State[a.x][a.y] = STATE::CAN_SET;
-				return true;
-			}
-			//探索線上に相手の石がある場合
-			if (stone_State[index.x][index.y]==opponent_Stone)
+			if (index.x < 0 || index.y < 0||index.x > 9 || index.y > 9) { return; }//盤面範囲外に出ていないかチェック
+			if (stone_State[index.x][index.y] == opponent_Stone)//探索位置の石が相手のものであったら
 			{
-				CanFlip=true;
+				Canflip_List.push_back(index);
 			}
-		} while(CanFlip);
-		return false;
+			else
+			{
+				if (stone_State[index.x][index.y] == STATE::NONE) { return; }//置いていない場所に到達した場合結局返せないのでreturn
+				if (stone_State[index.x][index.y] == now_Turn) { CanFlip = false; }//自ターンの色に到達した場合挟めている
+			}
+		}
+		for (int i = 0; i < Canflip_List.size(); i++)
+		{
+			Output.push_back(Canflip_List[i]);//最終的な結果を出力　これで1ライン分の探索終了
+		}
 	}
 	STATE GetState(vector2 index)
 	{
@@ -107,7 +106,6 @@ class Bord {
 	}
 	Bord();
 	private:
-	
 };
 Bord::Bord() {
 	//最初から置かれている石をコンストラクタで設定

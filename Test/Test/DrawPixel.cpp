@@ -66,7 +66,8 @@ if((MoucePos.x>0 && MoucePos.x<bord.margin * 8) &&
 		posindex.SetValue(MoucePos.x/bord.margin,MoucePos.y/bord.margin);
 		if (CheckCanSet(posindex)){
 			//ðŒ‚ª‚»‚ë‚Á‚Ä“ü‚ê‚ÎŽè”Ô‚ÌÎ‚ð’u‚­
-			bord.setState(posindex,NowTurn_State );
+			bord.setState(posindex,NowTurn_State);
+			bord.flip(bord.GetCanflip(posindex,NowTurn_State),NowTurn_State);
 			CanSetAllay_Reset();
 			lateTurn();
 		}
