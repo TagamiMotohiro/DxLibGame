@@ -51,7 +51,10 @@ void MainLoop()
 	if (MouseGetDown())
 	{
 		ClickSetStone();
+		
 	}
+	if (NowTurn_State == Bord::STATE::WHITE) { DrawString(150,150,"白のターンです",white); }
+	if (NowTurn_State == Bord::STATE::BLACK) { DrawString(150, 150,"黒のターンです", white); }
 	ChackMousePoint();
 	DrawBord(bord.stone_State);
 	ScreenFlip();

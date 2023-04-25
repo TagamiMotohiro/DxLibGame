@@ -6,10 +6,10 @@ class Bord {
 	//白い石が置かれているか黒い石が置かれているか判定する列挙型
 	enum STATE
 	{
-		NONE = 0,
-		WHITE = 1,
-		BLACK = 2,
-		CAN_SET=3
+		NONE = 0,//何も置いていない
+		WHITE = 1,//白が置かれている
+		BLACK = 2,//黒が置かれている
+		CAN_SET=3//今のターン石を置くことができる
 	};
 	const int margin = 50;
 	STATE stone_State[8][8] ={STATE::NONE};
@@ -41,7 +41,7 @@ class Bord {
 			stone_State[FlipStone[i].x][FlipStone[i].y] = FlipState;
 		}
 	}
-	std::vector<vector2> GetCanflip(vector2 Start_Pos/*調べるスタート地点*/,STATE nowTurn)
+	std::vector<vector2> GetCanflip(vector2 Start_Pos/*調べるスタート地点*/,STATE nowTurn/*現在のターン*/)
 	{
 		vector2 Line_Vec;
 		std::vector<vector2> CanflipList;
@@ -60,26 +60,19 @@ class Bord {
 		return CanflipList;
 	}
 	void Line_Search(vector2 index/*探索開始位置*/,vector2 Search＿Vector/*探索を行う線上(0,1)なら上方向*/,
-		STATE now_Turn,std::vector<vector2>& Output/*結果を渡す配列(ポインタ参照)*/)
+		STATE nowTurn,std::vector<vector2>& Output/*結果を渡す配列(ポインタ参照)*/)
 	{
-
+		
 		/*Tips:動的可変長配列同士は例え型が同じでも代入できない*/
-
+		
+		STATE opponent_Stone;
+		//送られてきた現在のターンの状態から探す石を算出
+		if (nowTurn == STATE::BLACK) { opponent_Stone = STATE::WHITE; }
+		if (nowTurn == STATE::WHITE) { opponent_Stone = STATE::BLACK; }
 		//1ライン分探索を行う関数
 		bool CanFlip=true;
-		STATE opponent_Stone;
 		std::vector<vector2> Canflip_List;//(仮置き)返すことができる位置情報のリスト
 		//現在のターンの状態から探索する状態を算出
-		if(now_Turn==STATE::BLACK)
-		{
-			//黒だったら白
-			opponent_Stone = STATE::WHITE;
-		}
-		else
-		{
-			//白だったら黒を探す
-			opponent_Stone = STATE::BLACK;
-		}
 		while (CanFlip)
 		{
 			//現在の探索位置から探索方向にずらす
@@ -91,8 +84,9 @@ class Bord {
 			}
 			else
 			{
-				if (stone_State[index.x][index.y] == STATE::NONE) { return; }//置いていない場所に到達した場合結局返せないのでreturn
-				if (stone_State[index.x][index.y] == now_Turn) { CanFlip = false; }//自ターンの色に到達した場合挟めている
+				if (stone_State[index.x][index.y] == STATE::NONE||
+					stone_State[index.x][index.y] == STATE::CAN_SET ) { return; }//置いていない場所に到達した場合結局返せないのでreturn
+				if (stone_State[index.x][index.y] == nowTurn) { CanFlip = false; }//自ターンの色に到達した場合挟めている
 			}
 		}
 		for (int i = 0; i < Canflip_List.size(); i++)
