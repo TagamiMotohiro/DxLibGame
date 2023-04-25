@@ -77,7 +77,7 @@ class Bord {
 		{
 			//現在の探索位置から探索方向にずらす
 			index.PlusValue(Search＿Vector.x, Search＿Vector.y);
-			if (index.x < 0 || index.y < 0||index.x > 9 || index.y > 9) { return; }//盤面範囲外に出ていないかチェック
+			if (index.x < 0 || index.y < 0||index.x >= 8 || index.y >= 8) { return; }//盤面範囲外に出ていないかチェック
 			if (stone_State[index.x][index.y] == opponent_Stone)//探索位置の石が相手のものであったら
 			{
 				Canflip_List.push_back(index);

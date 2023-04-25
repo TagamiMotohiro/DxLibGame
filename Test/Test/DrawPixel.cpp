@@ -48,14 +48,13 @@ void MainLoop()
 		gameEnd = true;
 	}
 	ClearDrawScreen();
+	ChackMousePoint();
 	if (MouseGetDown())
 	{
 		ClickSetStone();
-		
 	}
-	if (NowTurn_State == Bord::STATE::WHITE) { DrawString(150,150,"白のターンです",white); }
-	if (NowTurn_State == Bord::STATE::BLACK) { DrawString(150, 150,"黒のターンです", white); }
-	ChackMousePoint();
+	if (NowTurn_State == Bord::STATE::WHITE) { DrawString(500,150,"白のターンです",white); }
+	if (NowTurn_State == Bord::STATE::BLACK) { DrawString(500,150,"黒のターンです",white); }
 	DrawBord(bord.stone_State);
 	ScreenFlip();
 }
@@ -71,8 +70,8 @@ if((MoucePos.x>0 && MoucePos.x<bord.margin * 8) &&
 			//条件がそろって入れば手番の石を置く
 			bord.setState(posindex,NowTurn_State);
 			bord.flip(bord.GetCanflip(posindex,NowTurn_State),NowTurn_State);
-			CanSetAllay_Reset();
 			lateTurn();
+			CanSetAllay_Reset();
 		}
 	}
 }
