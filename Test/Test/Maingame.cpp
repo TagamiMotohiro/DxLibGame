@@ -2,23 +2,33 @@
 #include "vector"
 #include "Vector2.h"
 #include "Bord.h"
+#include <random>
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 #define BORD_SIZE 400
 #define BORD_EDGE_NUM 8//盤面の端っこの配列番号(9*9なので[8]がMAX)
 #define TEXT_WINDOW_POSX 500//テキストウィンドウの位置X
 #define TEXT_WINDOW_POSY 150//テキストウィンドウの位置Y
-bool gameEnd=false;
-bool BeforeMouseState=false;
-Bord bord;
-Bord::STATE NowTurn_State = Bord::WHITE;
+#define NPC_THINKTIME_MAX 500//NPCが考える時間(1=1フレーム)
+bool gameEnd=false;//ゲームが終了したかどうか
+bool BeforeMouseState=false;//マウス状態管理用
+Bord bord;//盤面管理クラスのインスタンス
+Bord::STATE NowTurn_State = Bord::WHITE;//今どちらのターンか
+
+//NPCが考え始めてから経過した時間
+int NPCthinkTime=0;
+
+//色取得用
 int white = GetColor(255, 255, 255);
 int black = GetColor(0, 0, 0);
-vector2 MoucePos;
-vector2 pos;
-std::vector<vector2> CansetPosAllay;
-bool turnSkiped=false;//ターンが一度スキップされたか
 
+//マウス位置確認用
+vector2 MoucePos;
+
+//配置できる位置をリスト化して並べたもの
+std::vector<vector2> CansetPosAllay;
+
+bool turnSkiped=false;//ターンが一度スキップされたか
 //関数プロト宣言
 void CanSetAllay_Reset();
 bool MouseGetDown();
@@ -28,7 +38,9 @@ bool CheckCanSet(vector2 pos);
 void DrawBord(Bord::STATE now_State[BORD_EDGE_NUM][BORD_EDGE_NUM]);
 void ChackMousePoint();
 void ClickSetStone();
+void EnemyTurn();
 void GameSet();
+int GetRandom(int min,int max);
 // プログラムは WinMain から始まります
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -55,12 +67,23 @@ void MainLoop()
 		//esc押したら強制終了
 		gameEnd = true;
 	}
-	ClearDrawScreen();
-	ChackMousePoint();
-	if (MouseGetDown())
+	if (NowTurn_State == Bord::STATE::BLACK)//今が黒のターンだったら
 	{
-		ClickSetStone();
+		//敵のターン
+		EnemyTurn();
 	}
+	else
+	{
+		//そうでない場合プレイヤーのターン
+		//クリックで石を置く
+		ClearDrawScreen();
+		ChackMousePoint();
+		if (MouseGetDown())
+		{
+			ClickSetStone();
+		}
+	}
+	
 	if (NowTurn_State == Bord::STATE::WHITE) { DrawString(TEXT_WINDOW_POSX,TEXT_WINDOW_POSY,"白のターンです",white); }
 	if (NowTurn_State == Bord::STATE::BLACK) { DrawString(TEXT_WINDOW_POSX,TEXT_WINDOW_POSY,"黒のターンです",white); }
 	DrawBord(bord.stone_State);
@@ -84,6 +107,7 @@ if((MoucePos.x>0 && MoucePos.x<bord.margin * BORD_EDGE_NUM) &&
 	}
 }
 bool CheckCanSet(vector2 pos) {
+	//クリックで指定された位置番号と同じ位置番号がセット可能状態になっていたらtrue
 	for (int i = 0; i < CansetPosAllay.size(); i++)
 	{
 		if (pos.x == CansetPosAllay[i].x && pos.y == CansetPosAllay[i].y)
@@ -106,6 +130,35 @@ void lateTurn()
 		NowTurn_State = Bord::STATE::BLACK;
 		return;
 	}
+}
+void EnemyTurn()
+{
+	//考え時間をプラス
+	NPCthinkTime++;
+	//考え時間がMAXになったら
+	if (NPCthinkTime>=NPC_THINKTIME_MAX) {
+		NPCthinkTime = 0;
+		//どこかしらに石を置く
+		vector2 decisionPos = CansetPosAllay[GetRandom(0,CansetPosAllay.size()-1)];
+		bord.setState(decisionPos,NowTurn_State);
+		bord.flip(bord.GetCanflip(decisionPos,NowTurn_State), NowTurn_State);
+		//ターン終了の処理
+		lateTurn();
+		CanSetAllay_Reset();
+	}
+}
+void CanSetAllay_Reset()
+{
+	CansetPosAllay = bord.ReturnCanSetindex(NowTurn_State);
+	if (CansetPosAllay.size() <= 0)
+	{
+		if (turnSkiped == true) { gameEnd = true; return; }//さっきもスキップされていたらどっちも置けないので試合終了
+		turnSkiped = true;//スキップされた判定をONに
+		lateTurn();//ターンを経過させてリセット
+		CanSetAllay_Reset();//再度この関数を呼び出す
+		return;
+	}
+	turnSkiped = false;
 }
 void DrawBord(Bord::STATE now_State[8][8])
 {
@@ -140,11 +193,9 @@ void DrawBord(Bord::STATE now_State[8][8])
 	DrawLine(bord.margin * 8, 0, bord.margin * 8, bord.margin * 8, black, 1);
 	DrawLine(0, bord.margin *8, bord.margin * 8, bord.margin * 8, black, 1);
 }
-void ChackMousePoint()
-{
-	//マウス座標チェック(デバッグ用)
-	GetMousePoint(&MoucePos.x, &MoucePos.y);
-	DrawFormatString(0, 0, white, "Mouse_X=%d::Mouse_Y=%d",MoucePos.x,MoucePos.y);
+void GameSet() {//ゲーム終了後の処理
+	DrawFormatString(TEXT_WINDOW_POSX,TEXT_WINDOW_POSY,white,"ゲーム終了");
+	WaitKey();
 }
 bool MouseGetDown()//MouseのGetDownがなかったので作った
 {
@@ -155,20 +206,20 @@ bool MouseGetDown()//MouseのGetDownがなかったので作った
 	BeforeMouseState = Get;
 	return Changed;
 }
-void CanSetAllay_Reset()
+void ChackMousePoint()
 {
-	CansetPosAllay = bord.ReturnCanSetindex(NowTurn_State);
-	if (CansetPosAllay.size() <= 0)
-	{
-		if (turnSkiped == true) { gameEnd = true; return; }//さっきもスキップされていたらどっちも置けないので試合終了
-		turnSkiped = true;//スキップされた判定をONに
-		lateTurn();//ターンを経過させてリセット
-		CanSetAllay_Reset();//再度この関数を呼び出す
-		return;
-	}
-	turnSkiped = false;
+	//マウス座標チェック(デバッグ用)
+	GetMousePoint(&MoucePos.x, &MoucePos.y);
+	DrawFormatString(0, 0, white, "Mouse_X=%d::Mouse_Y=%d",MoucePos.x,MoucePos.y);
 }
-void GameSet() {//ゲーム終了後の処理
-	DrawFormatString(TEXT_WINDOW_POSX,TEXT_WINDOW_POSY,white,"ゲーム終了");
-	WaitKey();
+int GetRandom(int min,int max)
+{
+	std::random_device randomdevice;
+	//ランダム生成デバイスを初期化
+	std::mt19937 mt(randomdevice());
+	//メルセンヌ・ツイスターエンジンを初期化
+	std::uniform_int_distribution<int> ditribution(min,max);
+	//乱数の分布を設定
+	return ditribution(mt);
+	//値を返す
 }
