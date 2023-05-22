@@ -139,7 +139,7 @@ void EnemyTurn()
 	if (NPCthinkTime>=NPC_THINKTIME_MAX) {
 		NPCthinkTime = 0;
 		//どこかしらに石を置く
-		vector2 decisionPos = CansetPosAllay[GetRandom(0,CansetPosAllay.size()-1)];
+		vector2 decisionPos = CansetPosAllay[GetRandom(0,CansetPosAllay.size()-1)];//maxの値に-1しているのは範囲外参照除けのため
 		bord.setState(decisionPos,NowTurn_State);
 		bord.flip(bord.GetCanflip(decisionPos,NowTurn_State), NowTurn_State);
 		//ターン終了の処理
