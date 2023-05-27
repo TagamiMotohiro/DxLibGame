@@ -2,6 +2,17 @@
 #include "Vector2.h"
 #include "vector"
 class Bord {
+	//5/26にビサイド様にいただいたFB
+	//headerファイルに処理を直書きしない(参照経路的に重くなるので)
+	//headerファイルには宣言だけ書いてCppファイルに処理を置くことで読み込みを減らせる
+	//マクロ(orConst変数)もっと使っていこう
+	//関数で値を持ってくるときは丸コピーではなくconst参照を使おう
+	//ファイル作成日時を上のほうに書こう
+	//関数の最初に説明のコメントを書こう
+	//その時々で最新で最適な書き方がされているか(関数が古いやつじゃないかなど)がより大事
+	
+	//自分の感想
+	//シンプルに自分のコードが配慮されてなかった所や今までのクセでC#節のコードを書いているところが散見された
 	public:
 	//白い石が置かれているか黒い石が置かれているか判定する列挙型
 	enum STATE
@@ -11,8 +22,6 @@ class Bord {
 		BLACK = 2,//黒が置かれている
 		CAN_SET=3//今のターン石を置くことができる
 	};
-	const int margin = 50;
-	STATE stone_State[8][8] ={STATE::NONE};
 	void setState(vector2 index,Bord::STATE ChangeState)
 	{
 		stone_State[index.x][index.y] = ChangeState;
@@ -100,6 +109,8 @@ class Bord {
 	}
 	Bord();
 	private:
+	const int margin = 50;
+	STATE stone_State[8][8] = { STATE::NONE };
 };
 Bord::Bord() {
 	//最初から置かれている石をコンストラクタで設定
