@@ -14,6 +14,7 @@ class Bord {
 	//自分の感想
 	//シンプルに自分のコードが配慮されてなかった所や今までのクセでC#節のコードを書いているところが散見された
 	public:
+	const int margin = 50;
 	//白い石が置かれているか黒い石が置かれているか判定する列挙型
 	enum STATE
 	{
@@ -22,6 +23,7 @@ class Bord {
 		BLACK = 2,//黒が置かれている
 		CAN_SET=3//今のターン石を置くことができる
 	};
+	STATE stone_State[8][8] = { STATE::NONE };
 	void setState(vector2 index,Bord::STATE ChangeState)
 	{
 		stone_State[index.x][index.y] = ChangeState;
@@ -109,8 +111,7 @@ class Bord {
 	}
 	Bord();
 	private:
-	const int margin = 50;
-	STATE stone_State[8][8] = { STATE::NONE };
+	
 };
 Bord::Bord() {
 	//最初から置かれている石をコンストラクタで設定
