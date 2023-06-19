@@ -1,6 +1,7 @@
 #pragma once
 #include "Vector2.h"
 #include "vector"
+#include "Macro.h"
 class Bord {
 	//5/26にビサイド様にいただいたFB
 	//headerファイルに処理を直書きしない(参照経路的に重くなるので)
@@ -51,6 +52,18 @@ class Bord {
 		{
 			stone_State[FlipStone[i].x][FlipStone[i].y] = FlipState;
 		}
+	}
+	int CountStone(STATE CountState)//盤面内の石の数をカウント
+	{
+		int result = 0;
+		for (int x = 0; x < BORD_EDGE_NUM; x++) {
+			for (int y = 0; y < BORD_EDGE_NUM; y++) {
+				if (stone_State[x][y] == CountState) {
+					result++;
+				}
+			}
+		}
+		return result;
 	}
 	std::vector<vector2> GetCanflip(vector2 Start_Pos/*調べるスタート地点*/,STATE nowTurn/*現在のターン*/)
 	{

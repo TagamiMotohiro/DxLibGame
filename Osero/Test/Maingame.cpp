@@ -3,13 +3,7 @@
 #include "Vector2.h"
 #include "Bord.h"
 #include <random>
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 480
-#define BORD_SIZE 400
-#define BORD_EDGE_NUM 8//盤面の端っこの配列番号(9*9なので[8]がMAX)
-#define TEXT_WINDOW_POSX 500//テキストウィンドウの位置X
-#define TEXT_WINDOW_POSY 150//テキストウィンドウの位置Y
-#define NPC_THINKTIME_MAX 500//NPCが考える時間(1=1フレーム)
+#include "Macro.h"
 bool gameEnd=false;//ゲームが終了したかどうか
 bool BeforeMouseState=false;//マウス状態管理用
 Bord bord;//盤面管理クラスのインスタンス
@@ -194,7 +188,25 @@ void DrawBord(Bord::STATE now_State[8][8])
 	DrawLine(0, bord.margin *8, bord.margin * 8, bord.margin * 8, black, 1);
 }
 void GameSet() {//ゲーム終了後の処理
-	DrawFormatString(TEXT_WINDOW_POSX,TEXT_WINDOW_POSY,white,"ゲーム終了");
+	ClearDrawScreen();
+	DrawBord(bord.stone_State);
+	const char* text;
+	if (bord.CountStone(Bord::STATE::WHITE) == bord.CountStone(Bord::STATE::BLACK))
+	{
+		text = "引き分け";
+	}
+	else
+	{
+		if (bord.CountStone(Bord::STATE::WHITE) > bord.CountStone(Bord::STATE::BLACK))
+		{
+			text = "白の勝ち";
+		}
+		else
+		{
+			text = "黒の勝ち";
+		}
+	}
+	DrawFormatString(TEXT_WINDOW_POSX, TEXT_WINDOW_POSY, white, text);
 	WaitKey();
 }
 bool MouseGetDown()//MouseのGetDownがなかったので作った
